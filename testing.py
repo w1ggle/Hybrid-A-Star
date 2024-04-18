@@ -344,7 +344,7 @@ def map():
     
     obstacleX = i.tolist()
     obstacleY = j.tolist()
-
+    '''
     for i in range(width + 1): #bottom and top border
         obstacleX.append(i)
         obstacleY.append(0)
@@ -356,7 +356,7 @@ def map():
         obstacleY.append(i)
         obstacleX.append(0)
         obstacleY.append(i)
-
+    '''
     return obstacleX, obstacleY
 
 def backtrack(startNode, goalNode, closedSet, plt):
