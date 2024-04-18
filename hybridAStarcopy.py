@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from heapdict import heapdict
 import scipy.spatial.kdtree as kd
 import reeds_shepp as rsCurve
+from PIL import Image
 
 class Car:
     maxSteerAngle = 0.6
@@ -330,95 +331,28 @@ def holonomicCostsWithObstacles(goalNode, mapParameters):
 
     return holonomicCost
 
-def map(width, height):
-    # Build Map
-    obstacleX, obstacleY = [], []
+def map():
+    img= Image.open("map1.png").convert('L')
+    np_img = np.asarray(img)
+    
+    height, width = np_img.shape
 
-    for i in range(width + 1): #bottom
+    i, j = np.where(np_img == 0)
+
+    obstacleX = i.tolist()
+    obstacleY = j.tolist()
+
+    for i in range(width + 1): #bottom and top border
         obstacleX.append(i)
         obstacleY.append(0)
         obstacleX.append(i)    
         obstacleY.append(height)
-    
-    for i in range(height + 1): #right
+
+    for i in range(height + 1): #right and left border
         obstacleX.append(width)
         obstacleY.append(i)
         obstacleX.append(0)
         obstacleY.append(i)
-
-#    for i in range(height + 1): #left
-#        obstacleX.append(0)
-#        obstacleY.append(i)
-
-#    for i in range(width + 1): #top
-#        obstacleX.append(i)
-#        obstacleY.append(height)
-
-    
-    for i in range(10,20):
-        obstacleX.append(i)
-        obstacleY.append(30) 
-
-    for i in range(30,51):
-        obstacleX.append(i)
-        obstacleY.append(30) 
-
-    for i in range(0,31):
-        obstacleX.append(20)
-        obstacleY.append(i) 
-
-    for i in range(0,31):
-        obstacleX.append(30)
-        obstacleY.append(i) 
-
-    for i in range(40,50):
-        obstacleX.append(15)
-        obstacleY.append(i)
-
-    for i in range(25,40):
-        obstacleX.append(i)
-        obstacleY.append(35)
-
-    # Parking Map
-    # for i in range(51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(0)
-
-    # for i in range(51):
-    #     obstacleX.append(0)
-    #     obstacleY.append(i)
-
-    # for i in range(51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(50)
-
-    # for i in range(51):
-    #     obstacleX.append(50)
-    #     obstacleY.append(i)
-
-    # for i in range(51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(40)
-
-    # for i in range(0,20):
-    #     obstacleX.append(i)
-    #     obstacleY.append(30) 
-
-    # for i in range(29,51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(30) 
-
-    # for i in range(24,30):
-    #     obstacleX.append(19)
-    #     obstacleY.append(i) 
-
-    # for i in range(24,30):
-    #     obstacleX.append(29)
-    #     obstacleY.append(i) 
-
-    # for i in range(20,29):
-    #     obstacleX.append(i)
-    #     obstacleY.append(24)
 
     return obstacleX, obstacleY
 
@@ -547,12 +481,12 @@ def main():
 
     # Set Start, Goal x, y, theta
     s = [10, 10, np.deg2rad(90)]
-    g = [25, 20, np.deg2rad(90)]
+    g = [10, 20, np.deg2rad(90)]
     # s = [10, 35, np.deg2rad(0)]
     # g = [22, 28, np.deg2rad(0)]
 
     # Get Obstacle Map
-    obstacleX, obstacleY = map(70, 90)
+    obstacleX, obstacleY = map()
 
     # Calculate map Paramaters
     mapParameters = calculateMapParameters(obstacleX, obstacleY, 4, np.deg2rad(15.0))
