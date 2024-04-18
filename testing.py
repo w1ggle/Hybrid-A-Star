@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from heapdict import heapdict
 import scipy.spatial.kdtree as kd
 import reeds_shepp as rsCurve
-from PIL import Image
+import cv2
 
 class Car:
     maxSteerAngle = 0.6
@@ -332,7 +332,9 @@ def holonomicCostsWithObstacles(goalNode, mapParameters):
     return holonomicCost
 
 def map():
-    img= Image.open("map1.png").convert('L')
+    image = cv2.imread('Sample.png')
+    angle = 270
+    img = img.rotate(angle)
     np_img = np.asarray(img)
     
     height, width = np_img.shape
