@@ -8,12 +8,12 @@ import reeds_shepp as rsCurve
 import cv2
 
 class Car:
-    maxSteerAngle = 0.6
+    maxSteerAngle = 0.7
     steerPresion = 10
-    wheelBase = 46
-    axleToFront = 20
-    axleToBack = 10
-    width = 30
+    wheelBase = 39
+    axleToFront = 37
+    axleToBack = 28
+    width = 25
 
 class Cost:
     reverse = 10
@@ -342,7 +342,6 @@ def map():
     
     obstacleX = i.tolist()
     obstacleY = j.tolist()
-    
     width, height = np_img.shape #order is changed bc i rotated 90?
     
     for i in range(width + 1): #bottom and top border
@@ -483,11 +482,14 @@ def drawCar(x, y, yaw, color='black'):
 def main():
 
     # Set Start, Goal x, y, theta
-    s = [46, 180, np.deg2rad(270)]
-    g = [180, 180, np.deg2rad(90)]
-    #g = [150, 90, np.deg2rad(0)]
-    # s = [10, 35, np.deg2rad(0)]
-    # g = [22, 28, np.deg2rad(0)]
+    s = [46, 170, np.deg2rad(270)]
+    #g = [180, 160, np.deg2rad(90)] #spot 1 (top left)
+    #g = [225, 160, np.deg2rad(90)] #spot 2 
+    g = [271, 160, np.deg2rad(90)] #spot 3
+    #g = [53, 20, np.deg2rad(0)] #spot 4 
+    #g = [153, 20, np.deg2rad(0)] #spot 5 
+    #g = [245, 20, np.deg2rad(0)] #spot 6 (bottom right)
+
 
     # Get Obstacle Map
     obstacleX, obstacleY = map()
