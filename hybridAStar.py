@@ -9,12 +9,12 @@ import scipy.spatial.kdtree as kd
 import reeds_shepp as rsCurve
 
 class Car:
-    maxSteerAngle = 0.6
+    maxSteerAngle = 0.7
     steerPresion = 10
-    wheelBase = 3.5
-    axleToFront = 4.5
-    axleToBack = 1
-    width = 3
+    wheelBase = 350
+    axleToFront = 450
+    axleToBack = 100
+    width = 400
 
 class Cost:
     reverse = 10
@@ -334,91 +334,48 @@ def map(width, height):
     # Build Map
     obstacleX, obstacleY = [], []
 
-    for i in range(width + 1): #bottom
+    for i in range(width + 1): #bottom and top border
         obstacleX.append(i)
         obstacleY.append(0)
         obstacleX.append(i)    
         obstacleY.append(height)
     
-    for i in range(height + 1): #right
+    for i in range(height + 1): #right and left border
         obstacleX.append(width)
         obstacleY.append(i)
         obstacleX.append(0)
         obstacleY.append(i)
 
-#    for i in range(height + 1): #left
-#        obstacleX.append(0)
-#        obstacleY.append(i)
 
-#    for i in range(width + 1): #top
-#        obstacleX.append(i)
-#        obstacleY.append(height)
-
+    parkingLineWidth = 45
+    parkingLineHeight = 500
+    parkingBottomLeftLineStart = [1300, 2600]
     
-    for i in range(10,20):
-        obstacleX.append(i)
-        obstacleY.append(30) 
+    #bottom lines
+    for leftLine in parkingBottomLeftLineStart:
+        for i in range(parkingLineHeight + 1):
+            obstacleX.append(leftLine) #left line
+            obstacleY.append(i)
+            obstacleX.append(leftLine + parkingLineWidth) #right line
+            obstacleY.append(i)
 
-    for i in range(30,51):
-        obstacleX.append(i)
-        obstacleY.append(30) 
+        for i in range(leftLine, leftLine+parkingLineWidth+1): #closing lines
+            obstacleY.append(parkingLineHeight)
+            obstacleX.append(i)
 
-    for i in range(0,31):
-        obstacleX.append(20)
-        obstacleY.append(i) 
+    parkingTopLeftLineStart = [1950, 2630, 3290]
+    #bottom lines
+    for leftLine in parkingBottomLeftLineStart:
+        for i in range(parkingLineHeight + 1):
+            obstacleX.append(leftLine) #left line
+            obstacleY.append(i)
+            obstacleX.append(leftLine + parkingLineWidth) #right line
+            obstacleY.append(i)
 
-    for i in range(0,31):
-        obstacleX.append(30)
-        obstacleY.append(i) 
-
-    for i in range(40,50):
-        obstacleX.append(15)
-        obstacleY.append(i)
-
-    for i in range(25,40):
-        obstacleX.append(i)
-        obstacleY.append(35)
-
-    # Parking Map
-    # for i in range(51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(0)
-
-    # for i in range(51):
-    #     obstacleX.append(0)
-    #     obstacleY.append(i)
-
-    # for i in range(51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(50)
-
-    # for i in range(51):
-    #     obstacleX.append(50)
-    #     obstacleY.append(i)
-
-    # for i in range(51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(40)
-
-    # for i in range(0,20):
-    #     obstacleX.append(i)
-    #     obstacleY.append(30) 
-
-    # for i in range(29,51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(30) 
-
-    # for i in range(24,30):
-    #     obstacleX.append(19)
-    #     obstacleY.append(i) 
-
-    # for i in range(24,30):
-    #     obstacleX.append(29)
-    #     obstacleY.append(i) 
-
-    # for i in range(20,29):
-    #     obstacleX.append(i)
-    #     obstacleY.append(24)
+        for i in range(leftLine, leftLine+parkingLineWidth+1): #closing lines
+            obstacleY.append(parkingLineHeight)
+            obstacleX.append(i)
+            
 
     return obstacleX, obstacleY
 
@@ -546,17 +503,16 @@ def drawCar(x, y, yaw, color='black'):
 def main():
 
     # Set Start, Goal x, y, theta
-    s = [10, 10, np.deg2rad(90)]
-    g = [25, 20, np.deg2rad(90)]
+    s = [300, 300, np.deg2rad(90)]
+    g = [300, 600, np.deg2rad(90)]
     # s = [10, 35, np.deg2rad(0)]
     # g = [22, 28, np.deg2rad(0)]
 
     # Get Obstacle Map
-    obstacleX, obstacleY = map(70, 90)
+    obstacleX, obstacleY = map(3900, 2800)
 
     # Calculate map Paramaters
-    mapParameters = calculateMapParameters(obstacleX, obstacleY, 4, np.deg2rad(15.0))
-
+    mapParameters = calculateMapParameters(obstacleX, obstacleY, 75, np.deg2rad(15.0))
     # Run Hybrid A*
     x, y, yaw = run(s, g, mapParameters, plt)
 
