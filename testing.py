@@ -10,9 +10,9 @@ import cv2
 class Car:
     maxSteerAngle = 0.6
     steerPresion = 10
-    wheelBase = 3.5
-    axleToFront = 4.5
-    axleToBack = 1
+    wheelBase = 46
+    axleToFront = 20
+    axleToBack = 10
     width = 30
 
 class Cost:
@@ -338,13 +338,13 @@ def map():
     image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
     np_img = np.asarray(image)
     
-    width, height = np_img.shape #order is changed bc i rotated 90?
-
     i, j = np.where(np_img == 0)
     
     obstacleX = i.tolist()
     obstacleY = j.tolist()
-    '''
+    
+    width, height = np_img.shape #order is changed bc i rotated 90?
+    
     for i in range(width + 1): #bottom and top border
         obstacleX.append(i)
         obstacleY.append(0)
@@ -356,7 +356,7 @@ def map():
         obstacleY.append(i)
         obstacleX.append(0)
         obstacleY.append(i)
-    '''
+
     return obstacleX, obstacleY
 
 def backtrack(startNode, goalNode, closedSet, plt):
@@ -483,8 +483,9 @@ def drawCar(x, y, yaw, color='black'):
 def main():
 
     # Set Start, Goal x, y, theta
-    s = [150, 90, np.deg2rad(90)]
-    g = [150, 100, np.deg2rad(90)]
+    s = [46, 180, np.deg2rad(270)]
+    g = [180, 180, np.deg2rad(90)]
+    #g = [150, 90, np.deg2rad(0)]
     # s = [10, 35, np.deg2rad(0)]
     # g = [22, 28, np.deg2rad(0)]
 
