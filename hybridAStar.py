@@ -330,25 +330,30 @@ def holonomicCostsWithObstacles(goalNode, mapParameters):
 
     return holonomicCost
 
-def map():
+def map(width, height):
     # Build Map
     obstacleX, obstacleY = [], []
 
-    for i in range(51):
+    for i in range(width + 1): #bottom
         obstacleX.append(i)
         obstacleY.append(0)
-
-    for i in range(51):
+        obstacleX.append(i)    
+        obstacleY.append(height)
+    
+    for i in range(height + 1): #right
+        obstacleX.append(width)
+        obstacleY.append(i)
         obstacleX.append(0)
         obstacleY.append(i)
 
-    for i in range(51):
-        obstacleX.append(i)
-        obstacleY.append(50)
+#    for i in range(height + 1): #left
+#        obstacleX.append(0)
+#        obstacleY.append(i)
 
-    for i in range(51):
-        obstacleX.append(50)
-        obstacleY.append(i)
+#    for i in range(width + 1): #top
+#        obstacleX.append(i)
+#        obstacleY.append(height)
+
     
     for i in range(10,20):
         obstacleX.append(i)
@@ -547,7 +552,7 @@ def main():
     # g = [22, 28, np.deg2rad(0)]
 
     # Get Obstacle Map
-    obstacleX, obstacleY = map()
+    obstacleX, obstacleY = map(70, 90)
 
     # Calculate map Paramaters
     mapParameters = calculateMapParameters(obstacleX, obstacleY, 4, np.deg2rad(15.0))
