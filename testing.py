@@ -332,10 +332,9 @@ def holonomicCostsWithObstacles(goalNode, mapParameters):
     return holonomicCost
 
 def map():
-    image = cv2.imread('Sample.png')
-    angle = 270
-    img = img.rotate(angle)
-    np_img = np.asarray(img)
+    image = cv2.imread('images/map1.png', cv2.IMREAD_GRAYSCALE)
+    image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+    np_img = np.asarray(image)
     
     height, width = np_img.shape
 
