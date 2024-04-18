@@ -1,6 +1,4 @@
 import math
-import sys
-import os
 import heapq
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,7 +13,7 @@ class Car:
     wheelBase = 3.5
     axleToFront = 4.5
     axleToBack = 1
-    width = 3
+    width = 30
 
 class Cost:
     reverse = 10
@@ -332,14 +330,18 @@ def holonomicCostsWithObstacles(goalNode, mapParameters):
     return holonomicCost
 
 def map():
-    image = cv2.imread('images/map1.png', cv2.IMREAD_GRAYSCALE)
+    image = cv2.imread('images/test.png', cv2.IMREAD_GRAYSCALE)
+    down_width = 300
+    down_height = 200
+    down_points = (down_width, down_height)
+    image = cv2.resize(image, down_points, interpolation= cv2.INTER_LINEAR)
     image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
     np_img = np.asarray(image)
     
-    height, width = np_img.shape
+    width, height = np_img.shape #order is changed bc i rotated 90?
 
     i, j = np.where(np_img == 0)
-
+    
     obstacleX = i.tolist()
     obstacleY = j.tolist()
 
@@ -481,8 +483,8 @@ def drawCar(x, y, yaw, color='black'):
 def main():
 
     # Set Start, Goal x, y, theta
-    s = [10, 10, np.deg2rad(90)]
-    g = [10, 20, np.deg2rad(90)]
+    s = [150, 90, np.deg2rad(90)]
+    g = [150, 100, np.deg2rad(90)]
     # s = [10, 35, np.deg2rad(0)]
     # g = [22, 28, np.deg2rad(0)]
 

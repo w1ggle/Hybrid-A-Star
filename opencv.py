@@ -1,19 +1,18 @@
 import cv2
 import numpy as np
  
- 
-gray_image = cv2.imread('images/blank.png',  cv2.IMREAD_GRAYSCALE)
-#gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) 
-np_img = np.asarray(gray_image)
+image = cv2.imread('images/test.png', cv2.IMREAD_GRAYSCALE)
+image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+down_width = 300
+down_height = 200
+down_points = (down_width, down_height)
+image = cv2.resize(image, down_points, interpolation= cv2.INTER_LINEAR)
+#cv2.imshow('Resized Up image by defining scaling factor', image)
+#cv2.waitKey()
+
+np_img = np.asarray(image)
 
 height, width = np_img.shape
 
-i, j = np.where(np_img == 0)
-
-obstacleX = i.tolist()
-obstacleY = j.tolist()
-
-
-
-
-print(obstacleX)
+print(height)
+print(width)
