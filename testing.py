@@ -486,8 +486,8 @@ def main():
     #g = [180, 160, np.deg2rad(90)] #spot 1 (top left)
     #g = [225, 160, np.deg2rad(90)] #spot 2 
     g = [271, 160, np.deg2rad(90)] #spot 3
-    #g = [60, 25, np.deg2rad(0)] #spot 4 
-    #g = [156, 25, np.deg2rad(0)] #spot 5 
+    #g = [60, 20, np.deg2rad(0)] #spot 4 
+    #g = [140, 20, np.deg2rad(0)] #spot 5 
     #g = [245, 25, np.deg2rad(0)] #spot 6 (bottom right)
 
 
