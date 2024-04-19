@@ -1,20 +1,19 @@
 import math
-import sys
-import os
 import heapq
 import numpy as np
 import matplotlib.pyplot as plt
 from heapdict import heapdict
 import scipy.spatial.kdtree as kd
-import reeds_shepp as rsCurve
+import reeds_sheppASTAR as rsCurve
+import cv2
 
 class Car:
     maxSteerAngle = 0.6
     steerPresion = 10
-    wheelBase = 3.5
-    axleToFront = 4.5
-    axleToBack = 1
-    width = 3
+    wheelBase = 39
+    axleToFront = 32
+    axleToBack = 23
+    width = 25
 
 class Cost:
     reverse = 10
@@ -330,95 +329,32 @@ def holonomicCostsWithObstacles(goalNode, mapParameters):
 
     return holonomicCost
 
-def map(width, height):
-    # Build Map
-    obstacleX, obstacleY = [], []
-
-    for i in range(width + 1): #bottom
+def map():
+    image = cv2.imread('images/test.png', cv2.IMREAD_GRAYSCALE)
+    down_width = 300
+    down_height = 200
+    down_points = (down_width, down_height)
+    image = cv2.resize(image, down_points, interpolation= cv2.INTER_LINEAR)
+    image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+    np_img = np.asarray(image)
+    
+    i, j = np.where(np_img == 0)
+    
+    obstacleX = i.tolist()
+    obstacleY = j.tolist()
+    width, height = np_img.shape #order is changed bc i rotated 90?
+    
+    for i in range(width + 1): #bottom and top border
         obstacleX.append(i)
         obstacleY.append(0)
         obstacleX.append(i)    
         obstacleY.append(height)
-    
-    for i in range(height + 1): #right
+
+    for i in range(height + 1): #right and left border
         obstacleX.append(width)
         obstacleY.append(i)
         obstacleX.append(0)
         obstacleY.append(i)
-
-#    for i in range(height + 1): #left
-#        obstacleX.append(0)
-#        obstacleY.append(i)
-
-#    for i in range(width + 1): #top
-#        obstacleX.append(i)
-#        obstacleY.append(height)
-
-    
-    for i in range(10,20):
-        obstacleX.append(i)
-        obstacleY.append(30) 
-
-    for i in range(30,51):
-        obstacleX.append(i)
-        obstacleY.append(30) 
-
-    for i in range(0,31):
-        obstacleX.append(20)
-        obstacleY.append(i) 
-
-    for i in range(0,31):
-        obstacleX.append(30)
-        obstacleY.append(i) 
-
-    for i in range(40,50):
-        obstacleX.append(15)
-        obstacleY.append(i)
-
-    for i in range(25,40):
-        obstacleX.append(i)
-        obstacleY.append(35)
-
-    # Parking Map
-    # for i in range(51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(0)
-
-    # for i in range(51):
-    #     obstacleX.append(0)
-    #     obstacleY.append(i)
-
-    # for i in range(51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(50)
-
-    # for i in range(51):
-    #     obstacleX.append(50)
-    #     obstacleY.append(i)
-
-    # for i in range(51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(40)
-
-    # for i in range(0,20):
-    #     obstacleX.append(i)
-    #     obstacleY.append(30) 
-
-    # for i in range(29,51):
-    #     obstacleX.append(i)
-    #     obstacleY.append(30) 
-
-    # for i in range(24,30):
-    #     obstacleX.append(19)
-    #     obstacleY.append(i) 
-
-    # for i in range(24,30):
-    #     obstacleX.append(29)
-    #     obstacleY.append(i) 
-
-    # for i in range(20,29):
-    #     obstacleX.append(i)
-    #     obstacleY.append(24)
 
     return obstacleX, obstacleY
 
@@ -546,19 +482,27 @@ def drawCar(x, y, yaw, color='black'):
 def main():
 
     # Set Start, Goal x, y, theta
-    s = [10, 10, np.deg2rad(90)]
-    g = [25, 20, np.deg2rad(90)]
-    # s = [10, 35, np.deg2rad(0)]
-    # g = [22, 28, np.deg2rad(0)]
+    s = [270, 68, np.deg2rad(180)]
+    #g = [180, 160, np.deg2rad(270)] #spot 1 (top left)
+    g = [225, 160, np.deg2rad(270)] #spot 2 
+    #g = [271, 160, np.deg2rad(270)] #spot 3
+    #g = [70, 25, np.deg2rad(180)] #spot 4 
+    #g = [170, 20, np.deg2rad(180)] #spot 5 
+    #g = [260, 20, np.deg2rad(180)] #spot 6 (bottom right)
+
 
     # Get Obstacle Map
-    obstacleX, obstacleY = map(70, 90)
+    obstacleX, obstacleY = map()
 
     # Calculate map Paramaters
     mapParameters = calculateMapParameters(obstacleX, obstacleY, 4, np.deg2rad(15.0))
 
     # Run Hybrid A*
     x, y, yaw = run(s, g, mapParameters, plt)
+    
+    states = [(a,b,z) for a in x for b in y for z in yaw]
+    
+    
 
     # Draw Start, Goal Location Map and Path
     # plt.arrow(s[0], s[1], 1*math.cos(s[2]), 1*math.sin(s[2]), width=.1)
@@ -588,7 +532,7 @@ def main():
         plt.plot(obstacleX, obstacleY, "sk")
         plt.plot(x, y, linewidth=1.5, color='r', zorder=0)
         drawCar(x[k], y[k], yaw[k])
-        plt.arrow(x[k], y[k], 1*math.cos(yaw[k]), 1*math.sin(yaw[k]), width=.1)
+        plt.arrow(x[k], y[k], 1*math.cos(yaw[k]), 1*math.sin(yaw[k]), width=5)
         plt.title("Hybrid A*")
         plt.pause(0.001)
     

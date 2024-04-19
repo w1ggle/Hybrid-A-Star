@@ -1,8 +1,7 @@
+import time
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 
-import draw
 
 # parameters initiation
 STEP_SIZE = 0.2
@@ -13,13 +12,13 @@ PI = math.pi
 # class for PATH element
 class PATH:
     def __init__(self, lengths, ctypes, L, x, y, yaw, directions):
-        self.lengths = lengths  # lengths of each part of path (+: forward, -: backward) [float]
-        self.ctypes = ctypes  # type of each part of the path [string]
-        self.L = L  # total path length [float]
-        self.x = x  # final x positions [m]
-        self.y = y  # final y positions [m]
-        self.yaw = yaw  # final yaw angles [rad]
-        self.directions = directions  # forward: 1, backward:-1
+        self.lengths = lengths              # lengths of each part of path (+: forward, -: backward) [float]
+        self.ctypes = ctypes                # type of each part of the path [string]
+        self.L = L                          # total path length [float]
+        self.x = x                          # final x positions [m]
+        self.y = y                          # final y positions [m]
+        self.yaw = yaw                      # final yaw angles [rad]
+        self.directions = directions        # forward: 1, backward:-1
 
 
 def calc_optimal_path(sx, sy, syaw, gx, gy, gyaw, maxc, step_size=STEP_SIZE):
@@ -124,7 +123,7 @@ def SCS(x, y, phi, paths):
     flag, t, u, v = SLS(x, y, phi)
 
     if flag:
-        paths = set_path(paths, [t, u, v], ["S", "L", "S"])
+        paths = set_path(paths, [t, u, v], ["S", "WB", "S"])
 
     flag, t, u, v = SLS(x, -y, -phi)
     if flag:
@@ -155,11 +154,11 @@ def SLS(x, y, phi):
 def CSC(x, y, phi, paths):
     flag, t, u, v = LSL(x, y, phi)
     if flag:
-        paths = set_path(paths, [t, u, v], ["L", "S", "L"])
+        paths = set_path(paths, [t, u, v], ["WB", "S", "WB"])
 
     flag, t, u, v = LSL(-x, y, -phi)
     if flag:
-        paths = set_path(paths, [-t, -u, -v], ["L", "S", "L"])
+        paths = set_path(paths, [-t, -u, -v], ["WB", "S", "WB"])
 
     flag, t, u, v = LSL(x, -y, -phi)
     if flag:
@@ -171,19 +170,19 @@ def CSC(x, y, phi, paths):
 
     flag, t, u, v = LSR(x, y, phi)
     if flag:
-        paths = set_path(paths, [t, u, v], ["L", "S", "R"])
+        paths = set_path(paths, [t, u, v], ["WB", "S", "R"])
 
     flag, t, u, v = LSR(-x, y, -phi)
     if flag:
-        paths = set_path(paths, [-t, -u, -v], ["L", "S", "R"])
+        paths = set_path(paths, [-t, -u, -v], ["WB", "S", "R"])
 
     flag, t, u, v = LSR(x, -y, -phi)
     if flag:
-        paths = set_path(paths, [t, u, v], ["R", "S", "L"])
+        paths = set_path(paths, [t, u, v], ["R", "S", "WB"])
 
     flag, t, u, v = LSR(-x, -y, phi)
     if flag:
-        paths = set_path(paths, [-t, -u, -v], ["R", "S", "L"])
+        paths = set_path(paths, [-t, -u, -v], ["R", "S", "WB"])
 
     return paths
 
@@ -191,19 +190,19 @@ def CSC(x, y, phi, paths):
 def CCC(x, y, phi, paths):
     flag, t, u, v = LRL(x, y, phi)
     if flag:
-        paths = set_path(paths, [t, u, v], ["L", "R", "L"])
+        paths = set_path(paths, [t, u, v], ["WB", "R", "WB"])
 
     flag, t, u, v = LRL(-x, y, -phi)
     if flag:
-        paths = set_path(paths, [-t, -u, -v], ["L", "R", "L"])
+        paths = set_path(paths, [-t, -u, -v], ["WB", "R", "WB"])
 
     flag, t, u, v = LRL(x, -y, -phi)
     if flag:
-        paths = set_path(paths, [t, u, v], ["R", "L", "R"])
+        paths = set_path(paths, [t, u, v], ["R", "WB", "R"])
 
     flag, t, u, v = LRL(-x, -y, phi)
     if flag:
-        paths = set_path(paths, [-t, -u, -v], ["R", "L", "R"])
+        paths = set_path(paths, [-t, -u, -v], ["R", "WB", "R"])
 
     # backwards
     xb = x * math.cos(phi) + y * math.sin(phi)
@@ -211,19 +210,19 @@ def CCC(x, y, phi, paths):
 
     flag, t, u, v = LRL(xb, yb, phi)
     if flag:
-        paths = set_path(paths, [v, u, t], ["L", "R", "L"])
+        paths = set_path(paths, [v, u, t], ["WB", "R", "WB"])
 
     flag, t, u, v = LRL(-xb, yb, -phi)
     if flag:
-        paths = set_path(paths, [-v, -u, -t], ["L", "R", "L"])
+        paths = set_path(paths, [-v, -u, -t], ["WB", "R", "WB"])
 
     flag, t, u, v = LRL(xb, -yb, -phi)
     if flag:
-        paths = set_path(paths, [v, u, t], ["R", "L", "R"])
+        paths = set_path(paths, [v, u, t], ["R", "WB", "R"])
 
     flag, t, u, v = LRL(-xb, -yb, phi)
     if flag:
-        paths = set_path(paths, [-v, -u, -t], ["R", "L", "R"])
+        paths = set_path(paths, [-v, -u, -t], ["R", "WB", "R"])
 
     return paths
 
@@ -278,35 +277,35 @@ def LRLRp(x, y, phi):
 def CCCC(x, y, phi, paths):
     flag, t, u, v = LRLRn(x, y, phi)
     if flag:
-        paths = set_path(paths, [t, u, -u, v], ["L", "R", "L", "R"])
+        paths = set_path(paths, [t, u, -u, v], ["WB", "R", "WB", "R"])
 
     flag, t, u, v = LRLRn(-x, y, -phi)
     if flag:
-        paths = set_path(paths, [-t, -u, u, -v], ["L", "R", "L", "R"])
+        paths = set_path(paths, [-t, -u, u, -v], ["WB", "R", "WB", "R"])
 
     flag, t, u, v = LRLRn(x, -y, -phi)
     if flag:
-        paths = set_path(paths, [t, u, -u, v], ["R", "L", "R", "L"])
+        paths = set_path(paths, [t, u, -u, v], ["R", "WB", "R", "WB"])
 
     flag, t, u, v = LRLRn(-x, -y, phi)
     if flag:
-        paths = set_path(paths, [-t, -u, u, -v], ["R", "L", "R", "L"])
+        paths = set_path(paths, [-t, -u, u, -v], ["R", "WB", "R", "WB"])
 
     flag, t, u, v = LRLRp(x, y, phi)
     if flag:
-        paths = set_path(paths, [t, u, u, v], ["L", "R", "L", "R"])
+        paths = set_path(paths, [t, u, u, v], ["WB", "R", "WB", "R"])
 
     flag, t, u, v = LRLRp(-x, y, -phi)
     if flag:
-        paths = set_path(paths, [-t, -u, -u, -v], ["L", "R", "L", "R"])
+        paths = set_path(paths, [-t, -u, -u, -v], ["WB", "R", "WB", "R"])
 
     flag, t, u, v = LRLRp(x, -y, -phi)
     if flag:
-        paths = set_path(paths, [t, u, u, v], ["R", "L", "R", "L"])
+        paths = set_path(paths, [t, u, u, v], ["R", "WB", "R", "WB"])
 
     flag, t, u, v = LRLRp(-x, -y, phi)
     if flag:
-        paths = set_path(paths, [-t, -u, -u, -v], ["R", "L", "R", "L"])
+        paths = set_path(paths, [-t, -u, -u, -v], ["R", "WB", "R", "WB"])
 
     return paths
 
@@ -345,35 +344,35 @@ def LRSL(x, y, phi):
 def CCSC(x, y, phi, paths):
     flag, t, u, v = LRSL(x, y, phi)
     if flag:
-        paths = set_path(paths, [t, -0.5 * PI, u, v], ["L", "R", "S", "L"])
+        paths = set_path(paths, [t, -0.5 * PI, u, v], ["WB", "R", "S", "WB"])
 
     flag, t, u, v = LRSL(-x, y, -phi)
     if flag:
-        paths = set_path(paths, [-t, 0.5 * PI, -u, -v], ["L", "R", "S", "L"])
+        paths = set_path(paths, [-t, 0.5 * PI, -u, -v], ["WB", "R", "S", "WB"])
 
     flag, t, u, v = LRSL(x, -y, -phi)
     if flag:
-        paths = set_path(paths, [t, -0.5 * PI, u, v], ["R", "L", "S", "R"])
+        paths = set_path(paths, [t, -0.5 * PI, u, v], ["R", "WB", "S", "R"])
 
     flag, t, u, v = LRSL(-x, -y, phi)
     if flag:
-        paths = set_path(paths, [-t, 0.5 * PI, -u, -v], ["R", "L", "S", "R"])
+        paths = set_path(paths, [-t, 0.5 * PI, -u, -v], ["R", "WB", "S", "R"])
 
     flag, t, u, v = LRSR(x, y, phi)
     if flag:
-        paths = set_path(paths, [t, -0.5 * PI, u, v], ["L", "R", "S", "R"])
+        paths = set_path(paths, [t, -0.5 * PI, u, v], ["WB", "R", "S", "R"])
 
     flag, t, u, v = LRSR(-x, y, -phi)
     if flag:
-        paths = set_path(paths, [-t, 0.5 * PI, -u, -v], ["L", "R", "S", "R"])
+        paths = set_path(paths, [-t, 0.5 * PI, -u, -v], ["WB", "R", "S", "R"])
 
     flag, t, u, v = LRSR(x, -y, -phi)
     if flag:
-        paths = set_path(paths, [t, -0.5 * PI, u, v], ["R", "L", "S", "L"])
+        paths = set_path(paths, [t, -0.5 * PI, u, v], ["R", "WB", "S", "WB"])
 
     flag, t, u, v = LRSR(-x, -y, phi)
     if flag:
-        paths = set_path(paths, [-t, 0.5 * PI, -u, -v], ["R", "L", "S", "L"])
+        paths = set_path(paths, [-t, 0.5 * PI, -u, -v], ["R", "WB", "S", "WB"])
 
     # backwards
     xb = x * math.cos(phi) + y * math.sin(phi)
@@ -381,35 +380,35 @@ def CCSC(x, y, phi, paths):
 
     flag, t, u, v = LRSL(xb, yb, phi)
     if flag:
-        paths = set_path(paths, [v, u, -0.5 * PI, t], ["L", "S", "R", "L"])
+        paths = set_path(paths, [v, u, -0.5 * PI, t], ["WB", "S", "R", "WB"])
 
     flag, t, u, v = LRSL(-xb, yb, -phi)
     if flag:
-        paths = set_path(paths, [-v, -u, 0.5 * PI, -t], ["L", "S", "R", "L"])
+        paths = set_path(paths, [-v, -u, 0.5 * PI, -t], ["WB", "S", "R", "WB"])
 
     flag, t, u, v = LRSL(xb, -yb, -phi)
     if flag:
-        paths = set_path(paths, [v, u, -0.5 * PI, t], ["R", "S", "L", "R"])
+        paths = set_path(paths, [v, u, -0.5 * PI, t], ["R", "S", "WB", "R"])
 
     flag, t, u, v = LRSL(-xb, -yb, phi)
     if flag:
-        paths = set_path(paths, [-v, -u, 0.5 * PI, -t], ["R", "S", "L", "R"])
+        paths = set_path(paths, [-v, -u, 0.5 * PI, -t], ["R", "S", "WB", "R"])
 
     flag, t, u, v = LRSR(xb, yb, phi)
     if flag:
-        paths = set_path(paths, [v, u, -0.5 * PI, t], ["R", "S", "R", "L"])
+        paths = set_path(paths, [v, u, -0.5 * PI, t], ["R", "S", "R", "WB"])
 
     flag, t, u, v = LRSR(-xb, yb, -phi)
     if flag:
-        paths = set_path(paths, [-v, -u, 0.5 * PI, -t], ["R", "S", "R", "L"])
+        paths = set_path(paths, [-v, -u, 0.5 * PI, -t], ["R", "S", "R", "WB"])
 
     flag, t, u, v = LRSR(xb, -yb, -phi)
     if flag:
-        paths = set_path(paths, [v, u, -0.5 * PI, t], ["L", "S", "L", "R"])
+        paths = set_path(paths, [v, u, -0.5 * PI, t], ["WB", "S", "WB", "R"])
 
     flag, t, u, v = LRSR(-xb, -yb, phi)
     if flag:
-        paths = set_path(paths, [-v, -u, 0.5 * PI, -t], ["L", "S", "L", "R"])
+        paths = set_path(paths, [-v, -u, 0.5 * PI, -t], ["WB", "S", "WB", "R"])
 
     return paths
 
@@ -435,19 +434,19 @@ def LRSLR(x, y, phi):
 def CCSCC(x, y, phi, paths):
     flag, t, u, v = LRSLR(x, y, phi)
     if flag:
-        paths = set_path(paths, [t, -0.5 * PI, u, -0.5 * PI, v], ["L", "R", "S", "L", "R"])
+        paths = set_path(paths, [t, -0.5 * PI, u, -0.5 * PI, v], ["WB", "R", "S", "WB", "R"])
 
     flag, t, u, v = LRSLR(-x, y, -phi)
     if flag:
-        paths = set_path(paths, [-t, 0.5 * PI, -u, 0.5 * PI, -v], ["L", "R", "S", "L", "R"])
+        paths = set_path(paths, [-t, 0.5 * PI, -u, 0.5 * PI, -v], ["WB", "R", "S", "WB", "R"])
 
     flag, t, u, v = LRSLR(x, -y, -phi)
     if flag:
-        paths = set_path(paths, [t, -0.5 * PI, u, -0.5 * PI, v], ["R", "L", "S", "R", "L"])
+        paths = set_path(paths, [t, -0.5 * PI, u, -0.5 * PI, v], ["R", "WB", "S", "R", "WB"])
 
     flag, t, u, v = LRSLR(-x, -y, phi)
     if flag:
-        paths = set_path(paths, [-t, 0.5 * PI, -u, 0.5 * PI, -v], ["R", "L", "S", "R", "L"])
+        paths = set_path(paths, [-t, 0.5 * PI, -u, 0.5 * PI, -v], ["R", "WB", "S", "R", "WB"])
 
     return paths
 
@@ -471,7 +470,6 @@ def generate_local_course(L, lengths, mode, maxc, step_size):
     else:
         d = -step_size
 
-    pd = d
     ll = 0.0
 
     for m, l, i in zip(mode, lengths, range(len(mode))):
@@ -500,8 +498,11 @@ def generate_local_course(L, lengths, mode, maxc, step_size):
         px, py, pyaw, directions = \
             interpolate(ind, l, m, maxc, ox, oy, oyaw, px, py, pyaw, directions)
 
+    if len(px) <= 1:
+        return [], [], [], []
+
     # remove unused data
-    while px[-1] == 0.0:
+    while len(px) >= 1 and px[-1] == 0.0:
         px.pop()
         py.pop()
         pyaw.pop()
@@ -517,7 +518,7 @@ def interpolate(ind, l, m, maxc, ox, oy, oyaw, px, py, pyaw, directions):
         pyaw[ind] = oyaw
     else:
         ldx = math.sin(l) / maxc
-        if m == "L":
+        if m == "WB":
             ldy = (1.0 - math.cos(l)) / maxc
         elif m == "R":
             ldy = (1.0 - math.cos(l)) / (-maxc)
@@ -527,7 +528,7 @@ def interpolate(ind, l, m, maxc, ox, oy, oyaw, px, py, pyaw, directions):
         px[ind] = ox + gdx
         py[ind] = oy + gdy
 
-    if m == "L":
+    if m == "WB":
         pyaw[ind] = oyaw + l
     elif m == "R":
         pyaw[ind] = oyaw - l
@@ -667,53 +668,21 @@ def check_path(sx, sy, syaw, gx, gy, gyaw, maxc):
 
 
 def main():
-    # choose states pairs: (x, y, yaw)
-    # simulation-1
-    # states = [(0, 0, 0), (10, 10, -90), (20, 5, 60), (30, 10, 120),
-    #           (35, -5, 30), (25, -10, -120), (15, -15, 100), (0, -10, -90)]
+    start_x = 3.0  # [m]
+    start_y = 10.0  # [m]
+    start_yaw = np.deg2rad(40.0)  # [rad]
+    end_x = 0.0  # [m]
+    end_y = 1.0  # [m]
+    end_yaw = np.deg2rad(0.0)  # [rad]
+    max_curvature = 0.1
 
-    # simulation-2
-    states = [(-3, 3, 120), (10, -7, 30), (10, 13, 30), (20, 5, -25),
-              (35, 10, 180), (32, -10, 180), (5, -12, 90)]
+    t0 = time.time()
 
-    max_c = 0.1  # max curvature
-    path_x, path_y, yaw = [], [], []
+    for i in range(1000):
+        _ = calc_optimal_path(start_x, start_y, start_yaw, end_x, end_y, end_yaw, max_curvature)
 
-    for i in range(len(states) - 1):
-        s_x = states[i][0]
-        s_y = states[i][1]
-        s_yaw = np.deg2rad(states[i][2])
-        g_x = states[i + 1][0]
-        g_y = states[i + 1][1]
-        g_yaw = np.deg2rad(states[i + 1][2])
-
-        path_i = calc_optimal_path(s_x, s_y, s_yaw,
-                                   g_x, g_y, g_yaw, max_c)
-
-        path_x += path_i.x
-        path_y += path_i.y
-        yaw += path_i.yaw
-
-    # animation
-    plt.ion()
-    plt.figure(1)
-
-    for i in range(len(path_x)):
-        plt.clf()
-        plt.plot(path_x, path_y, linewidth=1, color='gray')
-
-        for x, y, theta in states:
-            draw.Arrow(x, y, np.deg2rad(theta), 2, 'blueviolet')
-
-        draw.Car(path_x[i], path_y[i], yaw[i], 1.5, 3)
-
-        plt.axis("equal")
-        plt.title("Simulation of Reeds-Shepp Curves")
-        plt.axis([-10, 42, -20, 20])
-        plt.draw()
-        plt.pause(0.001)
-
-    plt.pause(1)
+    t1 = time.time()
+    print(t1 - t0)
 
 
 if __name__ == '__main__':
