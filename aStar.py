@@ -485,10 +485,10 @@ def main():
     s = [270, 68, np.deg2rad(180)]
     #g = [180, 185, np.deg2rad(270)] #spot 1 (top left)
     #g = [226, 185, np.deg2rad(270)] #spot 2 
-    #g = [271, 185, np.deg2rad(270)] #spot 3
+    g = [271, 185, np.deg2rad(270)] #spot 3
     #g = [80, 25, np.deg2rad(180)] #spot 4 
-    g = [180, 25, np.deg2rad(180)] #spot 5 
-    #g = [260, 20, np.deg2rad(180)] #spot 6 (bottom right)
+    #g = [175, 20, np.deg2rad(180)] #spot 5 
+    #g = [265, 20, np.deg2rad(180)] #spot 6 (bottom right)
 
 
     # Get Obstacle Map
