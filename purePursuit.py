@@ -18,22 +18,22 @@ class C:
     Kp = 0.3  # proportional gain
 
     # system config
-    Ld = 2.6  # look ahead distance
+    Ld = 2.6#2.6  # look ahead distance
     kf = 0.1  # look forward gain
     dt = 0.1  # T step
     dist_stop = 0.7  # stop distance
     dc = 0.0
 
     # vehicle config
-    RF = 32#3.3  # [m] distance from rear to vehicle front end of vehicle
-    RB = 23#0.8  # [m] distance from rear to vehicle back end of vehicle
+    RF = 57#3.3  # [m] distance from rear to vehicle front end of vehicle
+    RB = 8#0.8  # [m] distance from rear to vehicle back end of vehicle
     W = 25#2.4  # [m] width of vehicle
     WD = 0.7 * W  # [m] distance between left-right wheels
     WB = 39 #2.5  # [m] Wheel base
-    TR = 0.44  # [m] Tyre radius
-    TW = 0.7  # [m] Tyre width
-    MAX_STEER = 0.90
-    MAX_ACCELERATION = 5.0
+    TR = 4.4#0.44  # [m] Tyre radius
+    TW = 7#0.7  # [m] Tyre width
+    MAX_STEER = 0.60
+    MAX_ACCELERATION = 10.0
 
 
 class Node:
@@ -229,9 +229,9 @@ def main():
     # generate path: [x, y, yaw]
     #states = [(0, 0, 0), (20, 15, 0), (35, 20, 90), (40, 0, 180),
     #          (20, 0, 120), (5, -10, 180), (15, 5, 30)]
-
-    states = aStar.main()
-    print(states[0])
+    states = [(0, 0, 0), (20, 15, 0)]
+    #states = aStar.main()
+    #print(states[0])
     #print(type(states[0]))
     # states = [(-3, 3, 120), (10, -7, 30), (10, 13, 30), (20, 5, -25),
     #           (35, 10, 180), (30, -10, 160), (5, -12, 90)]

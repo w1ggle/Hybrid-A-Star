@@ -10,9 +10,9 @@ import cv2
 class Car:
     maxSteerAngle = 0.6
     steerPresion = 10
-    wheelBase = 39
-    axleToFront = 32
-    axleToBack = 23
+    wheelBase = 38
+    axleToFront = 48
+    axleToBack = 14
     width = 25
 
 class Cost:
@@ -483,11 +483,11 @@ def main():
 
     # Set Start, Goal x, y, theta
     s = [270, 68, np.deg2rad(180)]
-    #g = [180, 160, np.deg2rad(270)] #spot 1 (top left)
-    g = [225, 160, np.deg2rad(270)] #spot 2 
-    #g = [271, 160, np.deg2rad(270)] #spot 3
-    #g = [70, 25, np.deg2rad(180)] #spot 4 
-    #g = [170, 20, np.deg2rad(180)] #spot 5 
+    #g = [180, 185, np.deg2rad(270)] #spot 1 (top left)
+    #g = [226, 185, np.deg2rad(270)] #spot 2 
+    #g = [271, 185, np.deg2rad(270)] #spot 3
+    #g = [80, 25, np.deg2rad(180)] #spot 4 
+    g = [180, 25, np.deg2rad(180)] #spot 5 
     #g = [260, 20, np.deg2rad(180)] #spot 6 (bottom right)
 
 
@@ -500,7 +500,9 @@ def main():
     # Run Hybrid A*
     x, y, yaw = run(s, g, mapParameters, plt)
     
-    states = [(a,b,z) for a in x for b in y for z in yaw]
+    #states = [(a,b,z) for a in x for b in y for z in yaw]
+    
+    #return states
     
     
 
