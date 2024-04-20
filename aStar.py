@@ -8,7 +8,7 @@ import reeds_sheppASTAR as rsCurve
 import cv2
 
 class Car:
-    maxSteerAngle = 0.6
+    maxSteerAngle = 0.35
     steerPresion = 10
     wheelBase = 38
     axleToFront = 48
@@ -485,10 +485,10 @@ def main():
     s = [270, 68, np.deg2rad(180)]
     #g = [180, 185, np.deg2rad(270)] #spot 1 (top left)
     #g = [226, 185, np.deg2rad(270)] #spot 2 
-    g = [271, 185, np.deg2rad(270)] #spot 3
+    #g = [271, 185, np.deg2rad(270)] #spot 3
     #g = [80, 25, np.deg2rad(180)] #spot 4 
     #g = [175, 20, np.deg2rad(180)] #spot 5 
-    #g = [265, 20, np.deg2rad(180)] #spot 6 (bottom right)
+    g = [265, 20, np.deg2rad(180)] #spot 6 (bottom right)
 
 
     # Get Obstacle Map
@@ -500,9 +500,18 @@ def main():
     # Run Hybrid A*
     x, y, yaw = run(s, g, mapParameters, plt)
     
-    #states = [(a,b,z) for a in x for b in y for z in yaw]
+    #x= x[::10]
+    #y= y[::10]
+    #yaw = yaw[::10]
     
-    #return states
+    
+    #states = [(a,b,z) for a in x for b in y for z in yaw]
+
+    #with open("file.txt", 'w') as output:
+    #    #for row in states:
+    #    output.write(str(x)+ '\n')
+        
+        
     
     
 
