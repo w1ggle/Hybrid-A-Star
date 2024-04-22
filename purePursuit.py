@@ -182,8 +182,8 @@ def generate_path(s):
     direct_flag = 1.0
 
     for i in range(len(s) - 1):
-        s_x, s_y, s_yaw = s[i][0], s[i][1], np.deg2rad(s[i][2])
-        g_x, g_y, g_yaw = s[i + 1][0], s[i + 1][1], np.deg2rad(s[i + 1][2])
+        s_x, s_y, s_yaw = s[i][0], s[i][1], s[i][2]
+        g_x, g_y, g_yaw = s[i + 1][0], s[i + 1][1], s[i + 1][2]
 
         path_i = rs.calc_optimal_path(s_x, s_y, s_yaw,
                                       g_x, g_y, g_yaw, max_c)
@@ -228,11 +228,15 @@ def generate_path(s):
 def main():
     # generate path: [x, y, yaw]
     #states = [(0, 0, 0), (20, 15, 0), (35, 20, 90), (40, 0, 180),
-     #         (20, 0, 120), (5, -10, 180), (15, 5, 30)]
-    #states = [(0, 0, 0), (20, 15, 0)]
+    #         (20, 0, 120), (5, -10, 180), (15, 5, 30)]
+    
     states = aStar.main()
-    #print(states[0])
-    #print(type(states[0]))
+
+    print(type(states))
+    print(type(states[0]))
+    print(type(states[0][0]))
+    print(type(states[0][1]))
+    print(type(states[0][2]))
     # states = [(-3, 3, 120), (10, -7, 30), (10, 13, 30), (20, 5, -25),
     #           (35, 10, 180), (30, -10, 160), (5, -12, 90)]
 
@@ -283,7 +287,9 @@ def main():
 
             dy = (node.yaw - yaw_old) / (node.v * C.dt)
             steer = rs.pi_2_pi(-math.atan(C.WB * dy))
-
+            
+            #print(steer) #right is pos, left is neg
+            print(acceleration) #neg is slow down pos is speed up
             yaw_old = node.yaw
             x0 = nodes.x[-1]
             y0 = nodes.y[-1]

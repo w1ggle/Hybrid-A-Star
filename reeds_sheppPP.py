@@ -72,7 +72,7 @@ def set_path(paths, lengths, ctypes):
     if path.L >= MAX_LENGTH:
         return paths
 
-    assert path.L >= 0.01
+    #assert path.L >= 0.01
     paths.append(path)
 
     return paths

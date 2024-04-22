@@ -1,18 +1,9 @@
+import math
 states = [(1,2,3),(1,2,3)]
 
-x , y, yaw = 0
+momentumFactor = 2
+velocity = 1
 
-for i in range(len(x) - 1):
-    if yaw(i) == yaw(i+1):
-        break
-    elif yaw(i) >= yaw(i+1):
-        print("turn right")
-    else:
-        print("turn left")
-        
-    if x(i) == x(i+1):
-        break
-    elif x(i) >= x(i+1):
-        print("turn right")
-    else:
-        print("turn left")
+for i in range(states - 1):
+    distance = math.hypot(x[i+1] - x[i], y[i+1] - y[i])
+    time = distance / (velocity * momentumFactor)

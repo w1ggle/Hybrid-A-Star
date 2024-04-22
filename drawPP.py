@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 class Arrow:
     def __init__(self, x, y, theta, L, c):
+        L = 20
         angle = np.deg2rad(30)
         d = 0.4 * L
         w = 2

@@ -485,10 +485,10 @@ def main():
     s = [270, 68, np.deg2rad(180)]
     #g = [180, 185, np.deg2rad(270)] #spot 1 (top left)
     #g = [226, 185, np.deg2rad(270)] #spot 2 
-    #g = [271, 185, np.deg2rad(270)] #spot 3
+    g = [271, 185, np.deg2rad(270)] #spot 3
     #g = [80, 25, np.deg2rad(180)] #spot 4 
     #g = [175, 20, np.deg2rad(180)] #spot 5 
-    g = [265, 20, np.deg2rad(180)] #spot 6 (bottom right)
+    #g = [265, 20, np.deg2rad(180)] #spot 6 (bottom right)
 
 
     # Get Obstacle Map
@@ -500,16 +500,22 @@ def main():
     # Run Hybrid A*
     x, y, yaw = run(s, g, mapParameters, plt)
     
-    #x= x[::10]
-    #y= y[::10]
-    #yaw = yaw[::10]
-    
-    
-    #states = [(a,b,z) for a in x for b in y for z in yaw]
+    x= x[::5]
+    y= y[::5]
+    yaw = yaw[::5]
 
+    test = [float(i) for i in yaw]
+    #print(type(test))
+    #print(type(test[0]))
+    
+    
+    states = list(zip(x,y,test))
+
+
+    return states
     #with open("file.txt", 'w') as output:
-    #    #for row in states:
-    #    output.write(str(x)+ '\n')
+    #    for row in states:
+    #        output.write(str(row)+ '\n')
         
         
     
@@ -536,7 +542,7 @@ def main():
     #     plt.title("Hybrid A*")
 
     # Draw Animated Car
-    for k in range(len(x)):
+    '''    for k in range(len(x)):
         plt.cla()
         plt.xlim(min(obstacleX), max(obstacleX)) 
         plt.ylim(min(obstacleY), max(obstacleY))
@@ -547,7 +553,7 @@ def main():
         plt.title("Hybrid A*")
         plt.pause(0.001)
     
-    plt.show()
+    plt.show()'''
 
 if __name__ == '__main__':
     main()
