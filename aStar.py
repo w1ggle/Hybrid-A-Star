@@ -500,9 +500,9 @@ def main():
     # Run Hybrid A*
     x, y, yaw = run(s, g, mapParameters, plt)
     
-    x= x[::5]
-    y= y[::5]
-    yaw = yaw[::5]
+    x= x[::15]
+    y= y[::15]
+    yaw = yaw[::15]
 
     test = [float(i) for i in yaw]
     #print(type(test))
