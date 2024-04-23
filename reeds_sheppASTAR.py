@@ -1,7 +1,7 @@
 import math
 import numpy as np
-import matplotlib.pyplot as plt
-import drawASTAR
+#import matplotlib.pyplot as plt
+#import drawASTAR
 
 # parameters initiation
 STEP_SIZE = 0.2
@@ -693,7 +693,7 @@ def main():
         path_y += path_i.y
         yaw += path_i.yaw
 
-    # animation
+'''    # animation
     plt.ion()
     plt.figure(1)
 
@@ -712,7 +712,7 @@ def main():
         plt.draw()
         plt.pause(0.001)
 
-    plt.pause(1)
+    plt.pause(1)'''
 
 
 if __name__ == '__main__':

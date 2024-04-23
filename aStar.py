@@ -1,7 +1,7 @@
 import math
 import heapq
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from heapdict import heapdict
 import scipy.spatial.kdtree as kd
 import reeds_sheppASTAR as rsCurve

@@ -1,4 +1,4 @@
-import time
+#import time
 import math
 import numpy as np
 
@@ -676,12 +676,12 @@ def main():
     end_yaw = np.deg2rad(0.0)  # [rad]
     max_curvature = 0.1
 
-    t0 = time.time()
+    #t0 = time.time()
 
     for i in range(1000):
         _ = calc_optimal_path(start_x, start_y, start_yaw, end_x, end_y, end_yaw, max_curvature)
 
-    t1 = time.time()
+    #t1 = time.time()
     print(t1 - t0)
 
 

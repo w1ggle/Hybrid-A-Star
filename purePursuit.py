@@ -5,9 +5,9 @@ author: huiming zhou
 
 import math
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
-import drawPP as draw
+#import drawPP as draw
 import reeds_sheppPP as rs
 
 import aStar
@@ -314,7 +314,7 @@ def main():
                     ac.stop()"""
             
             
-            yaw_old = node.yaw
+'''            yaw_old = node.yaw
             x0 = nodes.x[-1]
             y0 = nodes.y[-1]
             yaw0 = nodes.yaw[-1]
@@ -338,7 +338,7 @@ def main():
                                         [exit(0) if event.key == 'escape' else None])
             plt.pause(0.001)
 
-    plt.show()
+    plt.show()'''
 
 
 if __name__ == '__main__':
