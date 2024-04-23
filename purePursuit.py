@@ -18,10 +18,10 @@ class C:
     Kp = 0.3  # proportional gain
 
     # system config
-    Ld = 2.6#2.6  # look ahead distance
+    Ld = 10#2.6  # look ahead distance
     kf = 0.1  # look forward gain
     dt = 0.1  # T step
-    dist_stop = 0.7  # stop distance
+    dist_stop = 200#0.7  # stop distance
     dc = 0.0
 
     # vehicle config
@@ -32,7 +32,7 @@ class C:
     WB = .038 #2.5  # [m] Wheel base
     TR = .004#0.44  # [m] Tyre radius
     TW = .003#0.7  # [m] Tyre width
-    MAX_STEER = 0.60
+    MAX_STEER = 0.35
     MAX_ACCELERATION = 10.0
 
 
@@ -182,8 +182,8 @@ def generate_path(s):
     direct_flag = 1.0
 
     for i in range(len(s) - 1):
-        s_x, s_y, s_yaw = s[i][0], s[i][1], s[i][2]
-        g_x, g_y, g_yaw = s[i + 1][0], s[i + 1][1], s[i + 1][2]
+        s_x, s_y, s_yaw = s[i][0], s[i][1], np.deg2rad(s[i][2])
+        g_x, g_y, g_yaw = s[i + 1][0], s[i + 1][1], np.deg2rad(s[i + 1][2])
 
         path_i = rs.calc_optimal_path(s_x, s_y, s_yaw,
                                       g_x, g_y, g_yaw, max_c)
@@ -242,77 +242,87 @@ def main():
 
     x, y, yaw, direct, path_x, path_y = generate_path(states)
 
-    # simulation
-    maxTime = 100.0
-    yaw_old = 0.0
-    x0, y0, yaw0, direct0 = x[0][0], y[0][0], yaw[0][0], direct[0][0]
-    x_rec, y_rec = [], []
+    with open("blank.txt", 'w') as output:
+        
+    
+        # simulation
+        maxTime = 100.0
+        yaw_old = 0.0
+        x0, y0, yaw0, direct0 = x[0][0], y[0][0], yaw[0][0], direct[0][0]
+        x_rec, y_rec = [], []
 
-    for cx, cy, cyaw, cdirect in zip(x, y, yaw, direct):
-        t = 0.0
-        node = Node(x=x0, y=y0, yaw=yaw0, v=0.0, direct=direct0)
-        nodes = Nodes()
-        nodes.add(t, node)
-        ref_trajectory = PATH(cx, cy)
-        target_ind, _ = ref_trajectory.target_index(node)
-
-        while t <= maxTime:
-            if cdirect[0] > 0:
-                target_speed = 30.0 / 3.6
-                C.Ld = 4.0
-                C.dist_stop = 1.5
-                C.dc = -1.1
-            else:
-                target_speed = 20.0 / 3.6
-                C.Ld = 2.5
-                C.dist_stop = 0.2
-                C.dc = 0.2
-
-            xt = node.x + C.dc * math.cos(node.yaw)
-            yt = node.y + C.dc * math.sin(node.yaw)
-            dist = math.hypot(xt - cx[-1], yt - cy[-1])
-
-            if dist < C.dist_stop:
-                break
-
-            acceleration = pid_control(target_speed, node.v, dist, cdirect[0])
-            delta, target_ind = pure_pursuit(node, ref_trajectory, target_ind)
-
-            t += C.dt
-
-            node.update(acceleration, delta, cdirect[0])
+        for cx, cy, cyaw, cdirect in zip(x, y, yaw, direct):
+            t = 0.0
+            node = Node(x=x0, y=y0, yaw=yaw0, v=0.0, direct=direct0)
+            nodes = Nodes()
             nodes.add(t, node)
-            x_rec.append(node.x)
-            y_rec.append(node.y)
+            ref_trajectory = PATH(cx, cy)
+            target_ind, _ = ref_trajectory.target_index(node)
 
-            dy = (node.yaw - yaw_old) / (node.v * C.dt)
-            steer = rs.pi_2_pi(-math.atan(C.WB * dy))
-            
-            #print(steer) #right is pos, left is neg
-            print(acceleration) #neg is slow down pos is speed up
-            yaw_old = node.yaw
-            x0 = nodes.x[-1]
-            y0 = nodes.y[-1]
-            yaw0 = nodes.yaw[-1]
-            direct0 = nodes.direct[-1]
+            while t <= maxTime:
+                if cdirect[0] > 0:
+                    target_speed = 30.0 / 3.6
+                    C.Ld = 4.0
+                    C.dist_stop = 1.5
+                    C.dc = -1.1
+                else:
+                    target_speed = 20.0 / 3.6
+                    C.Ld = 2.5
+                    C.dist_stop = 0.2
+                    C.dc = 0.2
 
-            # animation
-            plt.cla()
-            plt.plot(node.x, node.y, marker='.', color='k')
-            plt.plot(path_x, path_y, color='gray', linewidth=2)
-            plt.plot(x_rec, y_rec, color='darkviolet', linewidth=2)
-            plt.plot(cx[target_ind], cy[target_ind], ".r")
-            draw.draw_car(node.x, node.y, yaw_old, steer, C)
+                xt = node.x + C.dc * math.cos(node.yaw)
+                yt = node.y + C.dc * math.sin(node.yaw)
+                dist = math.hypot(xt - cx[-1], yt - cy[-1])
 
-            # for m in range(len(states)):
-            #     draw.Arrow(states[m][0], states[m][1], np.deg2rad(states[m][2]), 2, 'blue')
+                if dist < C.dist_stop:
+                    break
 
-            plt.axis("equal")
-            plt.title("PurePursuit: v=" + str(node.v * 3.6)[:4] + "km/h")
-            plt.gcf().canvas.mpl_connect('key_release_event',
-                                         lambda event:
-                                         [exit(0) if event.key == 'escape' else None])
-            plt.pause(0.001)
+                acceleration = pid_control(target_speed, node.v, dist, cdirect[0])
+                delta, target_ind = pure_pursuit(node, ref_trajectory, target_ind)
+
+                t += C.dt
+
+                node.update(acceleration, delta, cdirect[0])
+                nodes.add(t, node)
+                x_rec.append(node.x)
+                y_rec.append(node.y)
+
+                dy = (node.yaw - yaw_old) / (node.v * C.dt)
+                steer = rs.pi_2_pi(-math.atan(C.WB * dy))
+                
+                #output.write(str(steer)+ '\n')
+                #if abs(steer) >= 2.4:
+                print("steer:" , steer) #neg is slow down pos is speed up
+                    
+                #print(steer) #right is pos, left is neg
+                if abs(acceleration) >= 2.5:
+                    print("accel:" , acceleration) #neg is slow down pos is speed up
+                
+                
+                yaw_old = node.yaw
+                x0 = nodes.x[-1]
+                y0 = nodes.y[-1]
+                yaw0 = nodes.yaw[-1]
+                direct0 = nodes.direct[-1]
+
+                # animation
+                plt.cla()
+                plt.plot(node.x, node.y, marker='.', color='k')
+                plt.plot(path_x, path_y, color='gray', linewidth=2)
+                plt.plot(x_rec, y_rec, color='darkviolet', linewidth=2)
+                plt.plot(cx[target_ind], cy[target_ind], ".r")
+                draw.draw_car(node.x, node.y, yaw_old, steer, C)
+
+                # for m in range(len(states)):
+                #     draw.Arrow(states[m][0], states[m][1], np.deg2rad(states[m][2]), 2, 'blue')
+
+                plt.axis("equal")
+                plt.title("PurePursuit: v=" + str(node.v * 3.6)[:4] + "km/h")
+                plt.gcf().canvas.mpl_connect('key_release_event',
+                                            lambda event:
+                                            [exit(0) if event.key == 'escape' else None])
+                plt.pause(0.001)
 
     plt.show()
 

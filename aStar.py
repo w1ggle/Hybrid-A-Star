@@ -500,16 +500,17 @@ def main():
     # Run Hybrid A*
     x, y, yaw = run(s, g, mapParameters, plt)
     
-    x= x[::15]
-    y= y[::15]
-    yaw = yaw[::15]
+    #x= x[::25]
+    #y= y[::25]
+    #yaw = yaw[::25]
 
-    test = [float(i) for i in yaw]
+    yaw = np.rad2deg(yaw)
+    #test = [float(i) for i in yaw]
     #print(type(test))
     #print(type(test[0]))
     
     
-    states = list(zip(x,y,test))
+    states = list(zip(x,y,yaw))
 
 
     return states
