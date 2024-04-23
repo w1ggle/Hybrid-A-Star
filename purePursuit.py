@@ -21,7 +21,7 @@ class C:
     Ld = 10#2.6  # look ahead distance
     kf = 0.1  # look forward gain
     dt = 0.1  # T step
-    dist_stop = 200#0.7  # stop distance
+    dist_stop = 0#200#0.7  # stop distance
     dc = 0.0
 
     # vehicle config
@@ -230,99 +230,113 @@ def main():
     #states = [(0, 0, 0), (20, 15, 0), (35, 20, 90), (40, 0, 180),
     #         (20, 0, 120), (5, -10, 180), (15, 5, 30)]
     
+    '''
+    Hybrid A* generates a path, but we need Pure Pursuit to follow it/convert the path to servo and motor controls
+    We take the states from astar and pipe them into PP to do the conversion for us'''
     states = aStar.main()
 
-    print(type(states))
-    print(type(states[0]))
-    print(type(states[0][0]))
-    print(type(states[0][1]))
-    print(type(states[0][2]))
-    # states = [(-3, 3, 120), (10, -7, 30), (10, 13, 30), (20, 5, -25),
-    #           (35, 10, 180), (30, -10, 160), (5, -12, 90)]
 
     x, y, yaw, direct, path_x, path_y = generate_path(states)
 
-    with open("blank.txt", 'w') as output:
-        
-    
-        # simulation
-        maxTime = 100.0
-        yaw_old = 0.0
-        x0, y0, yaw0, direct0 = x[0][0], y[0][0], yaw[0][0], direct[0][0]
-        x_rec, y_rec = [], []
+    lastPulse = 1500 #assuming straight is the starting point
+    # simulation
+    maxTime = 100.0
+    yaw_old = 0.0
+    x0, y0, yaw0, direct0 = x[0][0], y[0][0], yaw[0][0], direct[0][0]
+    x_rec, y_rec = [], []
 
-        for cx, cy, cyaw, cdirect in zip(x, y, yaw, direct):
-            t = 0.0
-            node = Node(x=x0, y=y0, yaw=yaw0, v=0.0, direct=direct0)
-            nodes = Nodes()
+    for cx, cy, cyaw, cdirect in zip(x, y, yaw, direct):
+        t = 0.0
+        node = Node(x=x0, y=y0, yaw=yaw0, v=0.0, direct=direct0)
+        nodes = Nodes()
+        nodes.add(t, node)
+        ref_trajectory = PATH(cx, cy)
+        target_ind, _ = ref_trajectory.target_index(node)
+
+        while t <= maxTime:
+            if cdirect[0] > 0:
+                target_speed = 30.0 / 3.6
+                C.Ld = 4.0
+                C.dist_stop = 1.5
+                C.dc = -1.1
+            else:
+                target_speed = 20.0 / 3.6
+                C.Ld = 2.5
+                C.dist_stop = 0.2
+                C.dc = 0.2
+
+            xt = node.x + C.dc * math.cos(node.yaw)
+            yt = node.y + C.dc * math.sin(node.yaw)
+            dist = math.hypot(xt - cx[-1], yt - cy[-1])
+
+            if dist < C.dist_stop:
+                break
+
+            acceleration = pid_control(target_speed, node.v, dist, cdirect[0])
+            delta, target_ind = pure_pursuit(node, ref_trajectory, target_ind)
+
+            t += C.dt
+
+            node.update(acceleration, delta, cdirect[0])
             nodes.add(t, node)
-            ref_trajectory = PATH(cx, cy)
-            target_ind, _ = ref_trajectory.target_index(node)
+            x_rec.append(node.x)
+            y_rec.append(node.y)
 
-            while t <= maxTime:
-                if cdirect[0] > 0:
-                    target_speed = 30.0 / 3.6
-                    C.Ld = 4.0
-                    C.dist_stop = 1.5
-                    C.dc = -1.1
+            dy = (node.yaw - yaw_old) / (node.v * C.dt)
+            steer = rs.pi_2_pi(-math.atan(C.WB * dy))
+            
+            #output.write(str(steer)+ '\n')
+            #if abs(steer) >= 2.4:
+            #print("steer:" , steer) #neg is slow down pos is speed up
+                
+            #print(steer) #right is pos, left is neg
+            '''
+            steer is a degree change, where neg is left and right is pos. We map this change to a pulse, then send
+            it to the car.
+            degreePerPulse = 0.135 #270 degrees / 2000 pulses
+            We then need to store the pulse we just sent so we can compare it for the next time
+            
+            acceleration is motor control, where neg is slow down and pos is speed up. The higher the magnitude, the faster we
+            should accel in that direction. Idk what the optimal sleep time should be.
+            '''
+            """ newPulse = lastPulse + (steer / 0.135) 
+            ac.send_command(1, newPulse)
+            lastPulse = newPulse
+            
+            if abs(acceleration) >= 2.5: #neg is slow down pos is speed up
+                if acceleration >= 2.5:
+                    ac.forward()
+                    time.sleep(1)
+                    ac.stop()
                 else:
-                    target_speed = 20.0 / 3.6
-                    C.Ld = 2.5
-                    C.dist_stop = 0.2
-                    C.dc = 0.2
+                    ac.back()
+                    time.sleep(1)
+                    ac.stop()"""
+            
+            
+            yaw_old = node.yaw
+            x0 = nodes.x[-1]
+            y0 = nodes.y[-1]
+            yaw0 = nodes.yaw[-1]
+            direct0 = nodes.direct[-1]
 
-                xt = node.x + C.dc * math.cos(node.yaw)
-                yt = node.y + C.dc * math.sin(node.yaw)
-                dist = math.hypot(xt - cx[-1], yt - cy[-1])
+            # animation
+            plt.cla()
+            plt.plot(node.x, node.y, marker='.', color='k')
+            plt.plot(path_x, path_y, color='gray', linewidth=2)
+            plt.plot(x_rec, y_rec, color='darkviolet', linewidth=2)
+            plt.plot(cx[target_ind], cy[target_ind], ".r")
+            draw.draw_car(node.x, node.y, yaw_old, steer, C)
 
-                if dist < C.dist_stop:
-                    break
+            # for m in range(len(states)):
+            #     draw.Arrow(states[m][0], states[m][1], np.deg2rad(states[m][2]), 2, 'blue')
 
-                acceleration = pid_control(target_speed, node.v, dist, cdirect[0])
-                delta, target_ind = pure_pursuit(node, ref_trajectory, target_ind)
-
-                t += C.dt
-
-                node.update(acceleration, delta, cdirect[0])
-                nodes.add(t, node)
-                x_rec.append(node.x)
-                y_rec.append(node.y)
-
-                dy = (node.yaw - yaw_old) / (node.v * C.dt)
-                steer = rs.pi_2_pi(-math.atan(C.WB * dy))
-                
-                #output.write(str(steer)+ '\n')
-                #if abs(steer) >= 2.4:
-                print("steer:" , steer) #neg is slow down pos is speed up
-                    
-                #print(steer) #right is pos, left is neg
-                if abs(acceleration) >= 2.5:
-                    print("accel:" , acceleration) #neg is slow down pos is speed up
-                
-                
-                yaw_old = node.yaw
-                x0 = nodes.x[-1]
-                y0 = nodes.y[-1]
-                yaw0 = nodes.yaw[-1]
-                direct0 = nodes.direct[-1]
-
-                # animation
-                plt.cla()
-                plt.plot(node.x, node.y, marker='.', color='k')
-                plt.plot(path_x, path_y, color='gray', linewidth=2)
-                plt.plot(x_rec, y_rec, color='darkviolet', linewidth=2)
-                plt.plot(cx[target_ind], cy[target_ind], ".r")
-                draw.draw_car(node.x, node.y, yaw_old, steer, C)
-
-                # for m in range(len(states)):
-                #     draw.Arrow(states[m][0], states[m][1], np.deg2rad(states[m][2]), 2, 'blue')
-
-                plt.axis("equal")
-                plt.title("PurePursuit: v=" + str(node.v * 3.6)[:4] + "km/h")
-                plt.gcf().canvas.mpl_connect('key_release_event',
-                                            lambda event:
-                                            [exit(0) if event.key == 'escape' else None])
-                plt.pause(0.001)
+            plt.axis("equal")
+            plt.title("PurePursuit: v=" + str(node.v * 3.6)[:4] + "km/h")
+            plt.gcf().canvas.mpl_connect('key_release_event',
+                                        lambda event:
+                                        [exit(0) if event.key == 'escape' else None])
+            plt.pause(0.001)
 
     plt.show()
 
